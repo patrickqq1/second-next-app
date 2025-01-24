@@ -33,6 +33,9 @@ export const login = async (username: string, password: string) => {
       redirectTo: "/dashboard",
     });
   } catch (error) {
+    console.log({
+      aconteceuumerro: error,
+    });
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":

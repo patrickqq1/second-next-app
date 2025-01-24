@@ -11,11 +11,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 export default function Home() {
+  const [isPending, setIsPending] = useState(false);
   const loginSchema = z.object({
     username: z.string().min(2).max(50),
     password: z.string().min(2).max(50),
@@ -29,8 +33,26 @@ export default function Home() {
     },
   });
 
+  const { toast } = useToast();
+
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    await login(values.username, values.password);
+    try {
+      setIsPending(true);
+      const data = await login(values.username, values.password);
+      if (data?.error) {
+        toast({
+          variant: "destructive",
+          description:
+            data?.error === "Invalid credentials!"
+              ? "Credenciais inválidas"
+              : data?.error,
+        });
+      }
+    } catch (error) {
+      console.log({ error });
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -68,8 +90,8 @@ export default function Home() {
               </FormItem>
             )}
           />
-          <Button className="w-full" type="submit">
-            Entrar
+          <Button className="w-full" type="submit" disabled={isPending}>
+            {isPending ? <Loader className="animate-spin" /> : "Entrar"}
           </Button>
         </form>
       </Form>
