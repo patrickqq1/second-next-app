@@ -18,6 +18,20 @@ export default function CardList({ tasks }: { tasks: Tasks[] }) {
           description={task.description}
           title={task.title}
           isCompleted={task.isCompleted}
+          createdAt={task.createdAt.toLocaleDateString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+          updatedAt={task.updatedAt.toLocaleDateString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         />
       ))}
     </div>

@@ -2,10 +2,12 @@
 import CompleteTask from "@/actions/tasks/complete-task";
 import DeleteTask from "@/actions/tasks/delete";
 import PendentTask from "@/actions/tasks/pendent-task";
+import { useState } from "react";
 import EditTaskModal from "./edit-task";
 import { Button } from "./ui/button";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -16,29 +18,36 @@ const CardTask = ({
   id,
   title,
   description,
+  createdAt,
+  updatedAt,
   isCompleted,
 }: {
   id: string;
   title: string;
+  createdAt: string;
+  updatedAt: string;
   description: string | null;
   isCompleted: boolean;
 }) => {
+  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
+  const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+
   const handleCompleteTask = async () => {
-    await CompleteTask({
-      id,
-    });
+    setIsLoadingComplete(true);
+    await CompleteTask({ id });
+    setIsLoadingComplete(false);
   };
 
   const handlePendentTask = async () => {
-    await PendentTask({
-      id,
-    });
+    setIsLoadingComplete(true);
+    await PendentTask({ id });
+    setIsLoadingComplete(false);
   };
 
   const handleDeleteTask = async () => {
-    await DeleteTask({
-      id,
-    });
+    setIsLoadingDelete(true);
+    await DeleteTask({ id });
+    setIsLoadingDelete(false);
   };
 
   return (
@@ -65,9 +74,26 @@ const CardTask = ({
           {description || "Sem descrição disponível."}
         </CardDescription>
       </CardHeader>
-      <CardFooter className="flex justify-between p-4 border-t border-zinc-200">
+      <CardContent>
+        <div>
+          <p>
+            <b>Criado em:</b> {createdAt}
+          </p>
+          {updatedAt === createdAt ? (
+            <p>
+              <b>Editado em:</b> Sem edições
+            </p>
+          ) : (
+            <p>
+              <b>Editado em:</b> {updatedAt}
+            </p>
+          )}
+        </div>
+      </CardContent>
+      <CardFooter className="grid grid-cols-2 gap-2 p-4 border-t border-zinc-200">
         <Button
-          className={`text-sm font-medium px-4 py-2 rounded-md transition-colors ${
+          disabled={isLoadingComplete}
+          className={`col-span-2 text-sm font-medium px-4 py-2 rounded-md transition-colors ${
             isCompleted
               ? "bg-green-500 hover:bg-green-600 text-white"
               : "bg-blue-500 hover:bg-blue-600 text-white"
@@ -80,13 +106,18 @@ const CardTask = ({
             }
           }}
         >
-          {isCompleted ? "Deixar como pendente" : "Concluir"}
+          {isLoadingComplete
+            ? "Processando..."
+            : isCompleted
+            ? "Deixar como pendente"
+            : "Concluir"}
         </Button>
         <Button
+          disabled={isLoadingDelete}
           onClick={handleDeleteTask}
           className="text-sm font-medium px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white"
         >
-          Excluir
+          {isLoadingDelete ? "Excluindo..." : "Excluir"}
         </Button>
         <EditTaskModal id={id} title={title} description={description || ""}>
           <Button>Editar</Button>
